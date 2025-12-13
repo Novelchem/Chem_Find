@@ -1,7 +1,7 @@
-fastapi==0.104.1
-uvicorn==0.24.0
-pydantic==2.5.0
-python-multipart==0.0.6
-google-genai==0.3.0
-rdkit==2024.9.1
-python-dotenv==1.0.0
+fastapi==0.121.2
+uvicorn==0.38.0
+pydantic==2.11.7
+google-genai==1.55.0
+rdkit==2025.9.3
+python-dotenv==1.2.1
+SQLAlchemy==2.0.44

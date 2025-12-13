@@ -40,7 +40,6 @@ def predict(data: InputData) -> Dict[str, Any]:
     """
     try:
         # 1. FORMAT INPUT: Mengubah 6 variabel min/max menjadi 1 string constraints
-        # Constraint string harus sesuai format yang diharapkan oleh parse_constraints di model_agent.py
         constraints_text = f"""
         pIC50: {data.pic50_min}-{data.pic50_max}
         logP: {data.logP_min}-{data.logP_max}
@@ -50,7 +49,6 @@ def predict(data: InputData) -> Dict[str, Any]:
         print("Constraints Dibuat:", constraints_text.strip())
 
         # 2. MENJALANKAN AGENTIC ORCHESTRATION DARI TIM ML
-        # run_with_manual_orchestration mengembalikan dict dengan key 'results', 'constraints', dll.
         raw_agent_output = run_with_manual_orchestration(
             constraints=constraints_text
         )
@@ -76,7 +74,6 @@ def predict(data: InputData) -> Dict[str, Any]:
                     "smiles": item.get("smiles"),
                     "justification": item.get("justification", "No scientific justification available."),
                     # Mengambil image_base64 dari Agent. 
-                    # Kita asumsikan frontend yang menambahkan prefix 'data:image/png;base64,'
                     "image": item.get("image_base64"), 
                     
                     # Properti Disesuaikan dengan key yang digunakan di detail.vue (pIC50, logP, atom_count)
@@ -108,9 +105,7 @@ def predict(data: InputData) -> Dict[str, Any]:
 def health_check():
     return {"status": "ok"}
 
-# ===========================
 # HISTORY GET
-# ===========================
 @app.get("/history/user/{users_id}")
 def get_user_history(users_id: int, db: Session = Depends(get_db)):
     histories = (
@@ -136,9 +131,7 @@ def get_user_history(users_id: int, db: Session = Depends(get_db)):
         ]
     }
 
-# ===========================
 # HISTORY POST / ADD
-# ===========================
 @app.post("/history/add")
 def add_history(item: dict, db: Session = Depends(get_db)):
     history_entry = History(

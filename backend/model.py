@@ -1,8 +1,3 @@
-# ====================================================================
-# SCRIPT INI MENGGABUNGKAN LOGIC AGENTIC AI DAN MODEL ML DARI TIM ML
-# Bertindak sebagai Agentic Backend Service.
-# Dependencies: langchain, langchain-google-genai, joblib, rdkit, numpy
-# ====================================================================
 
 import os
 from typing import List, Dict, Any, Optional
@@ -11,7 +6,6 @@ import base64
 from io import BytesIO
 
 # --- RDKIT & NUMPY ---
-# Pastikan library ini terinstal
 try:
     from rdkit import Chem
     from rdkit.Chem import Draw, AllChem, Descriptors
@@ -22,20 +16,14 @@ except ImportError:
     RDKIT_AVAILABLE = False
     
 # --- LANGCHAIN & GOOGLE GENAI ---
-# Ganti dengan import yang lebih sederhana untuk environment production
 from langchain_google_genai import GoogleGenerativeAI 
 from langchain.tools import tool
-# Ganti dengan joblib untuk memuat model PKL
 import joblib 
 
 # Gunakan BaseModel dari Pydantic (diperlukan untuk FastAPI)
 from pydantic import BaseModel 
 
-# ====================================================================
 # 1. INIASIALISASI MODEL DAN LLM
-# ====================================================================
-
-# Konfigurasi LLM (Ambil API Key dari Environment Variable)
 API_KEY = os.getenv("GOOGLE_API_KEY", "INSERT_YOUR_KEY_HERE")
 llm = GoogleGenerativeAI(
     model="gemini-2.5-flash", 
@@ -43,10 +31,7 @@ llm = GoogleGenerativeAI(
     google_api_key=API_KEY
 )
 
-# ====================================================================
 # 2. CLASS REGRESSOR MODEL ML (PropsRegressor)
-# ====================================================================
-
 class PropsRegressor:
     """Mengelola pemuatan dan prediksi model ML dari file .pkl."""
     def __init__(self, model_path: Optional[str] = None):
@@ -66,7 +51,6 @@ class PropsRegressor:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None: return None
         fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-        # Mengembalikan array numpy yang merepresentasikan fingerprint
         return np.array(fp)
 
     def predict(self, smiles: str) -> Optional[Dict[str, float]]:
@@ -74,7 +58,6 @@ class PropsRegressor:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None: return None
         
-        # Fallback jika model gagal dimuat
         if self.model is None:
             return {
                 "pic50": None,
@@ -86,7 +69,6 @@ class PropsRegressor:
         if fp is None: return None
         
         try:
-            # Model Anda memprediksi 3 target: [pic50, logp, atoms]
             predictions = self.model.predict([fp])[0]
             return {
                 "pic50": float(predictions[0]),
@@ -100,10 +82,7 @@ class PropsRegressor:
 # INISIALISASI MODEL ML (akan dimuat saat server dijalankan)
 predictor = PropsRegressor(model_path="multitarget_model.pkl")
 
-# ====================================================================
 # 3. FUNGSI UTILITAS (Parsing & Validasi)
-# ====================================================================
-
 def parse_constraints(text: str) -> Dict[str, tuple]:
     """Mengurai teks constraint menjadi dict {prop_name: (min, max)}."""
     constraints = {}
@@ -117,7 +96,6 @@ def parse_constraints(text: str) -> Dict[str, tuple]:
         if len(parts) < 2: continue
         
         prop_name = parts[0]
-        # Mengambil range min-max
         for part in parts[1:]:
             if "-" in part and not part.startswith("-"):
                 try:
@@ -138,10 +116,7 @@ def validate_properties(props: Dict[str, float], constraints: Dict[str, tuple]) 
             return False
     return True
 
-# ====================================================================
 # 4. TOOLS AGENTIC (Fungsi yang Dapat Dipanggil LLM/Orkestrasi)
-# ====================================================================
-
 class GenerateInput(BaseModel):
     constraints: str
 
@@ -173,14 +148,10 @@ def generate_and_validate_molecules(constraints: str) -> str:
 
     try:
         smiles_raw = llm.invoke(gen_prompt)
-        # Filter output agar hanya SMILES yang valid
-
-        # ====== PERBAIKAN 1: DEBUGGING RAW OUTPUT ======
-        # Ini akan membantu Anda melihat jika LLM merespons dengan format yang buruk
         print("--- LLM RAW SMILES OUTPUT START ---")
         print(smiles_raw.strip())
         print("--- LLM RAW SMILES OUTPUT END ---")
-        # =============================================
+
         smiles_list = [
             s.strip() 
             for s in smiles_raw.split("\n") 
@@ -215,7 +186,6 @@ def generate_and_validate_molecules(constraints: str) -> str:
         if props is None or any(v is None for v in props.values()):
             validity_error = validity_error or "Property prediction failed"
         
-        # Jika ada error, anggap tidak valid
         if validity_error:
             results.append({
                 "id": i,
@@ -311,8 +281,7 @@ def generate_molecule_image(smiles: str) -> str:
     if mol is None:
         return json.dumps({"success": False, "error": "Invalid SMILES structure"})
     
-    try:
-        # Gunakan ukuran yang sedikit lebih kecil dari 400x400 agar cepat dimuat di web
+    try:      
         img = Draw.MolToImage(mol, size=(300, 300))
         buf = BytesIO()
         img.save(buf, format="PNG")
@@ -329,10 +298,7 @@ def generate_molecule_image(smiles: str) -> str:
             "error": str(e)
         })
 
-# ====================================================================
 # 5. ORKESTRASI UTAMA (Fungsi yang dipanggil oleh FastAPI)
-# ====================================================================
-
 def run_with_manual_orchestration(constraints: str) -> Dict[str, Any]:
     """
     Fungsi utama yang menjalankan seluruh alur kerja Agentic (generate, validate, justify, image).
@@ -358,7 +324,6 @@ def run_with_manual_orchestration(constraints: str) -> Dict[str, Any]:
     
     for molecule in results_container["results"]:
         if not molecule.get("valid", False):
-            # Termasuk molekul yang tidak valid (jika perlu ditampilkan error)
             processed_results.append(molecule)
             continue
         
@@ -378,7 +343,6 @@ def run_with_manual_orchestration(constraints: str) -> Dict[str, Any]:
         try:
             image_data = json.loads(image_result_json)
             if image_data.get("success"):
-                # Simpan BASE64 data
                 molecule["image_base64"] = image_data["image_base64"] 
             else:
                 molecule["image_error"] = image_data.get("error", "Image generation failed.")
@@ -393,7 +357,3 @@ def run_with_manual_orchestration(constraints: str) -> Dict[str, Any]:
     results_container["results"] = processed_results
     
     return results_container
-
-# ====================================================================
-# SCRIPT END
-# ====================================================================
