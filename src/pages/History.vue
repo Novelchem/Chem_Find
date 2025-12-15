@@ -3,8 +3,8 @@
   <div class="min-h-screen bg-white px-6 py-10">
 
     <h1 class="text-4xl font-bold text-center mb-12">History</h1>
-    <img src="/molekul_kiriR.png" class="absolute top- left-0 w-[300px] h-[400px] opacity-50">
-    
+    <img src="/molekul_kiriR.png" class="absolute top-0 left-0 w-[300px] h-[400px] opacity-50">
+
     <div class="space-y-10 max-w-5xl mx-auto">
       <!-- Loop history items -->
       <div 
@@ -13,10 +13,11 @@
         class="w-full border-b pb-6 flex justify-between items-start relative"
       >
         <div class="text-gray-700 space-y-1">
-          <p><span class="font-semibold">SMILES:</span> {{ item.smiles }}</p>
-          <p><span class="font-semibold">pIC50:</span> {{ item.pic50 }}</p>
-          <p><span class="font-semibold">Atom Count:</span> {{ item.atom_count }}</p>
-          <p><span class="font-semibold">LogP:</span> {{ item.logP }}</p>
+          <p><span class="font-semibold">SMILES:</span> {{ item.smiles ?? "N/A" }}</p>
+          <p><span class="font-semibold">pIC50:</span> {{ item.pLC50 ?? "N/A" }}</p>
+          <p><span class="font-semibold">Atom Count:</span> {{ item.atom_count ?? "N/A" }}</p>
+          <p><span class="font-semibold">LogP:</span> {{ item.logP ?? "N/A" }}</p>
+          <p><span class="font-semibold">Justification:</span> {{ item.justification ?? "No justification" }}</p>
         </div>
       </div>
     </div>
@@ -41,13 +42,21 @@ onMounted(async () => {
   }
 
   try {
-    const response = await axios.get(
-      `http://127.0.0.1:8000/history/user/${userId}`
-    )
-
+   const API_URL = import.meta.env.VITE_BACKEND_URL;
+    const response = await axios.get(`${API_URL}/history/user/${userId}`)
     console.log("HISTORY RESPONSE:", response.data)
-    history.value = response.data.history || []
 
+    // Pastikan semua field ada, jika null beri default
+    history.value = response.data.history.map(h => ({
+      id: h.id,
+      user_id: h.user_id,
+      smiles: h.smiles ?? "N/A",
+      pLC50: h.pLC50 ?? "N/A",
+      atom_count: h.atom_count ?? "N/A",
+      logP: h.logP ?? "N/A",
+      justification: h.justification ?? "No justification"
+    }))
+    
   } catch (err) {
     console.error("Failed to fetch history:", err)
   }
