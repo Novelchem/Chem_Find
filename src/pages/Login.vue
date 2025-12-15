@@ -92,7 +92,8 @@ export default {
       error.value = ""
 
       try {
-        const res = await fetch("http://127.0.0.1:8000/login", {
+        const API_URL = import.meta.env.VITE_BACKEND_URL;
+        const res = await fetch(`${API_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -104,9 +105,7 @@ export default {
         const data = await res.json()
 
         if (res.ok) {
-          // Simpan token jika ada JWT
           if (data.token) localStorage.setItem("token", data.token)
-          // Simpan user_id untuk history
           localStorage.setItem("user_id", data.user.id)
           router.push("/appPage")
         } else {
