@@ -55,7 +55,7 @@
 
             <div class="flex justify-center">
                 <button @click="submitSearch" :disabled="loading"
-                        class="w-3/4 py-3 bg-[#4A70A9] text-white text-lg font-semibold rounded-lg shadow-md hover:bg-[#3c5a88] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="w-3/4 py-3 bg-[#4A70A9] text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                     {{ loading ? 'Processing...' : 'Search' }}
                 </button>
             </div>
@@ -116,7 +116,8 @@ async function submitSearch() {
 
   try {
     const userId = localStorage.getItem("user_id");
-    const response = await fetch('http://127.0.0.1:8000/predict', {
+    const API_URL = import.meta.env.VITE_BACKEND_URL;
+    const response = await fetch(`${API_URL}/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
