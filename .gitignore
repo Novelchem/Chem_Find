@@ -1,0 +1,33 @@
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ===== Virtual Environment =====
+.venv/
+venv/
+env/
+
+# ===== Environment Variables =====
+.env
+.env.*
+
+# ===== Logs =====
+*.log
+
+# ===== Model / Data (kalau ada) =====
+*.pkl
+*.joblib
+*.h5
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== IDE =====
+.vscode/
+.idea/
