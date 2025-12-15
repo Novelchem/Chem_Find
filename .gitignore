@@ -27,6 +27,13 @@ env/
 *.joblib
 *.h5
 
+# NODE / VUE
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # ===== Jupyter =====
 .ipynb_checkpoints/
 
