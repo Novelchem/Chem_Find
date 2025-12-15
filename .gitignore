@@ -13,6 +13,12 @@ env/
 .env
 .env.*
 
+# ===== Database =====
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+
 # ===== Logs =====
 *.log
 
