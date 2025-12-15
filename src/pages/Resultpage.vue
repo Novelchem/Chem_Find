@@ -115,12 +115,13 @@ onMounted(async () => {
     // --- Simpan ke history backend ---
     for (const item of recommendations.value) {
   try {
-    await axios.post("http://127.0.0.1:8000/history/add", {
+    const API_URL = import.meta.env.VITE_BACKEND_URL;
+    await axios.post(`${API_URL}/history`, {
       user_id: userId,
-      smiles: item.smiles ?? "",
-      pIC50: item.pIC50 ?? item.pIc50 ?? null,  // frontend tetap pIC50
-      atom_count: item.atom_count ?? null,
-      logP: item.logP ?? null,
+      smiles: item.smiles ,
+      pIC50: item.pIC50  ,  // frontend tetap pIC50
+      atom_count: item.atom_count ,
+      logP: item.logP ,
       justification: item.justification || "No justification available",
       image: item.image || null
     });
