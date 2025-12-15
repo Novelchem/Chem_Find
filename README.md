@@ -2,6 +2,10 @@
 
 Projek ini adalah *web application* untuk pencarian dan eksplorasi senyawa kimia baru berbasis Large Language Model (LLM) dan Agentic AI. Melalui ChemFind, proses pencarian senyawa dilakukan dengan generasi SMILES berdasarkan kriteria yang ditentukan pengguna, meliputi pIC50, jumlah atom, dan logP.
 
+Dataset yang digunakan adalah “SMILES DataSet for Analysis & Prediction Dataset” oleh Yan Maksi, didapat dan diakses pada platform Kaggle melalui url berikut: [SMILES DataSet for Analysis & Prediction Dataset](https://www.kaggle.com/datasets/yanmaksi/big-molecules-smiles-dataset)
+
+Untuk Link Google Drive model ML yang dibangun, dapat diakses melalui url berikut: [Drive Model ML](https://drive.google.com/drive/folders/1nSy71N53NAd53wnLZAZOYg9GILsRPy73?usp=sharing)
+
 ## Petunjuk Environment Setup
 Daftar dependensi dan konfigurasi *environment* dapat dilihat pada file `requirements.txt`.
 
