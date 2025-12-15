@@ -16,7 +16,7 @@ env/
 # ===== Logs =====
 *.log
 
-# ===== Model / Data (kalau ada) =====
+# ===== Model / Data =====
 *.pkl
 *.joblib
 *.h5
